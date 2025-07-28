@@ -5,7 +5,6 @@ import datetime
 
 def display_times(frames_since_t0, fps):
     local_time = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
     video_time = str(datetime.timedelta(seconds=frames_since_t0 / fps))
     return f'Local Time: {local_time}  |  Video Time: {video_time}'
 
@@ -14,8 +13,7 @@ def blur(frame, detections):
     for c in detections:
         (x, y, w, h) = cv2.boundingRect(c)
         roi = frame[y:y+h, x:x+w]
-        blurred_roi = cv2.stackBlur(roi, (15, 15))
-        frame[y:y+h, x:x+w] = blurred_roi
+        frame[y:y+h, x:x+w] = cv2.stackBlur(roi, (15, 15))
 
 
 def normal_display(frame, detections):
@@ -24,10 +22,13 @@ def normal_display(frame, detections):
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 
+color = (255, 255, 255)
+
+
 def displayer(displayer_sub, to_blur, fps):
-    action = blur if to_blur else normal_display
+    modify_image_by_action_type = blur if to_blur else normal_display
     cv2.namedWindow('Detections', cv2.WINDOW_GUI_EXPANDED)
-    cv2.resizeWindow('Detections', 800, 600)
+    cv2.resizeWindow('Detections', 1000, 750)
     frame_interval_ms = 1000 / fps
     while True:
         frame = displayer_sub.recv()
@@ -35,10 +36,10 @@ def displayer(displayer_sub, to_blur, fps):
         if frame is None:
             break
 
-        action(frame["frame"], frame["detections"])
+        modify_image_by_action_type(frame["frame"], frame["detections"])
 
-        cv2.putText(frame["frame"], display_times(frames_since_t0=frame['index'], fps=fps), (10, 25),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.putText(frame["frame"], display_times(frames_since_t0=frame['index'], fps=fps), (0, 25),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2, cv2.FILLED)
 
         cv2.imshow('Detections', frame["frame"])
 
