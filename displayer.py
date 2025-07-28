@@ -41,9 +41,9 @@ def displayer(displayer_sub, to_blur, fps):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
 
         cv2.imshow('Detections', frame["frame"])
+
         elapsed_ms = (time.time() - start_time) * 1000
         delay = max(1, int(frame_interval_ms - elapsed_ms))
-        print(delay, start_time, frame_interval_ms, time.time())
         if cv2.waitKey(delay) == ord('q'):
             break
 
